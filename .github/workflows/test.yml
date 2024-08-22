@@ -36,14 +36,14 @@ jobs:
           chmod +x /tmp/rustup.sh
           /tmp/rustup.sh -y -q
 
-    #   - name: Get repo
-    #     run: git clone https://github.com/Moonsong-Labs/pathfinder.git ~/pathfinder
+      - name: Get repo
+        run: git clone https://github.com/Moonsong-Labs/pathfinder.git ~/pathfinder
 
-      - name: Build pathfinder
-        run: |
-          source ~/.cargo/env
-          cd ~/pathfinder
-          cargo build --release --bin pathfinder
+    #   - name: Build pathfinder
+    #     run: |
+    #       source ~/.cargo/env
+    #       cd ~/pathfinder
+    #       cargo build --release --bin pathfinder
 
       - name: Download and extract database file
         run: |
