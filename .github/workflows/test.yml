@@ -78,7 +78,7 @@ jobs:
         run: |
           cd snos
           source venv/bin/activate
-          pip3 install cairo-lang==0.13.1
+          pip install cairo-lang==0.13.1 "sympy<1.13.0"
           bash scripts/setup-tests.sh
 
       - name: Run cargo command
