@@ -18,7 +18,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y curl git python3 python3-venv python3-dev build-essential libgmp-dev pkg-config libssl-dev zstd
-    
+
       - name: Install latest Protoc version
         run: |
           PROTOC_VERSION=23.3  # Specify the version you need here
@@ -28,37 +28,24 @@ jobs:
           sudo unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
           rm -f $PROTOC_ZIP
 
-      - name: Check if Cargo already installed
-        id: cargo-check
-        run: |
-          if [ -f "$HOME/.cargo/env" ]; then
-            echo "Cargo is already installed"
-            echo "cargo_installed=true" >> $GITHUB_ENV
-          else
-            echo "cargo_installed=false" >> $GITHUB_ENV
-          fi
-
-      - name: Install Cargo if needed
-        if: env.cargo_installed == 'false'
-        run: |
-          curl https://sh.rustup.rs -sSf -o /tmp/rustup.sh
-          chmod +x /tmp/rustup.sh
-          /tmp/rustup.sh -y -q
-
-      - name: Get repo
-        run: git clone https://github.com/Moonsong-Labs/pathfinder.git ~/pathfinder
-
-      - name: Build pathfinder
-        run: |
-          source ~/.cargo/env
-          cd ~/pathfinder
-          cargo build --release --bin pathfinder
-
       - name: Download and extract database file
         run: |
-          mkdir ~/pathfinder/data
+          mkdir -p ~/pathfinder/data
           curl -L https://pub-1fac64c3c0334cda85b45bcc02635c32.r2.dev/sepolia-testnet_0.13.0_74494_pruned.sqlite.zst -o ~/pathfinder/data/sepolia-testnet.sqlite.zst
           zstd -d ~/pathfinder/data/sepolia-testnet.sqlite.zst -o ~/pathfinder/data/sepolia-testnet.sqlite
 
-      - name: Attempt to run Pathfinder
-        run: RUST_LOG=info PATHFINDER_ETHEREUM_API_URL="${{ secrets.PATHFINDER_ETHEREUM_API_URL }}" nohup ~/pathfinder/target/release/pathfinder --data-directory ~/pathfinder/data --http-rpc 0.0.0.0:9545 --storage.state-tries archive > pathfinder.log 2>&1 &
+      - name: Pull Pathfinder Docker image
+        run: |
+          docker pull odesenfans/pathfinder:latest
+      - name: Run Pathfinder container in the background
+        run: |
+          docker run \
+            --name pathfinder \
+            --detach \
+            -p 127.0.0.1:9545:9545 \
+            --user "$(id -u):$(id -g)" \
+            -e RUST_LOG=info \
+            -e PATHFINDER_ETHEREUM_API_URL=${{ secrets.PATHFINDER_ETHEREUM_API_URL }} \
+            -v $HOME/pathfinder/data:/usr/share/pathfinder/data \
+            odesenfans/pathfinder:latest \
+            --storage.state-tries=archive
