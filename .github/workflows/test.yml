@@ -68,12 +68,7 @@ jobs:
           git clone https://github.com/keep-starknet-strange/snos.git
           cd snos
 
-      - name: Compile Rust project
-        run: |
-          cd snos
-          cargo build --release
-
       - name: Run cargo command
         run: |
-          cd snos
-          cargo run -p prove_block -- --block-number 38117 --rpc-provider http://127.0.0.1:9545
+          cd snos/crates/bin/prove_block
+          cargo run -- --block-number 38117 --rpc-provider http://127.0.0.1:9545
