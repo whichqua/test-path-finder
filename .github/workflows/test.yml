@@ -37,29 +37,7 @@ jobs:
           /tmp/rustup.sh -y -q
 
       - name: Get repo
-        run: git clone https://github.com/eqlabs/pathfinder.git ~/pathfinder
-
-      - name: Get latest version
-        run: |
-          cd ~/pathfinder
-          git fetch
-          git checkout $(git tag --list | sort | tail -n1)
-
-      - name: Clear virtual env
-        run: |
-          rm -rf ~/pathfinder/py/.venv
-
-      - name: Initialize virtual env
-        run: |
-          cd ~/pathfinder/py
-          python3 -m venv .venv
-
-      - name: Update pip and install dependencies
-        run: |
-          cd ~/pathfinder/py
-          source .venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements-dev.txt
+        run: git clone https://github.com/Moonsong-Labs/pathfinder.git ~/pathfinder
 
       - name: Build pathfinder
         run: |
