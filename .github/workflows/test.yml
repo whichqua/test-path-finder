@@ -68,9 +68,16 @@ jobs:
           git clone https://github.com/keep-starknet-strange/snos.git
           cd snos
 
+      - name: Create and activate Python virtual environment
+        run: |
+          cd snos
+          python3 -m venv venv
+          source venv/bin/activate
+
       - name: Setup the tests
         run: |
           cd snos
+          source venv/bin/activate
           bash scripts/setup-tests.sh
 
       - name: Run cargo command
