@@ -18,6 +18,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y curl git python3 python3-venv python3-dev build-essential libgmp-dev pkg-config libssl-dev zstd
+    
+      - name: Install latest Protoc version
+        run: |
+          PROTOC_VERSION=23.3  # Specify the version you need here
+          PROTOC_ZIP=protoc-$PROTOC_VERSION-linux-x86_64.zip
+          curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/$PROTOC_ZIP
+          sudo unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
+          sudo unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
+          rm -f $PROTOC_ZIP
 
       - name: Check if Cargo already installed
         id: cargo-check
@@ -39,13 +48,17 @@ jobs:
       - name: Get repo
         run: git clone https://github.com/Moonsong-Labs/pathfinder.git ~/pathfinder
 
-    #   - name: Build pathfinder
-    #     run: |
-    #       source ~/.cargo/env
-    #       cd ~/pathfinder
-    #       cargo build --release --bin pathfinder
+      - name: Build pathfinder
+        run: |
+          source ~/.cargo/env
+          cd ~/pathfinder
+          cargo build --release --bin pathfinder
 
       - name: Download and extract database file
         run: |
-          curl -L https://pub-1fac64c3c0334cda85b45bcc02635c32.r2.dev/sepolia-testnet_0.13.0_74494_pruned.sqlite.zst -o ~/pathfinder/sepolia-testnet.sqlite.zst
-          zstd -d ~/pathfinder/sepolia-testnet.sqlite.zst -o ~/pathfinder/sepolia-testnet.sqlite
+          mkdir ~/pathfinder/data
+          curl -L https://pub-1fac64c3c0334cda85b45bcc02635c32.r2.dev/sepolia-testnet_0.13.0_74494_pruned.sqlite.zst -o ~/pathfinder/data/sepolia-testnet.sqlite.zst
+          zstd -d ~/pathfinder/data/sepolia-testnet.sqlite.zst -o ~/pathfinder/data/sepolia-testnet.sqlite
+
+      - name: Attempt to run Pathfinder
+        run: RUST_LOG=info PATHFINDER_ETHEREUM_API_URL="" ~/pathfinder/target/release/pathfinder --data-directory ~/pathfinder/data --http-rpc 0.0.0.0:9545 --storage.state-tries archive
