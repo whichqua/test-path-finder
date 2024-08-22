@@ -61,4 +61,4 @@ jobs:
           zstd -d ~/pathfinder/data/sepolia-testnet.sqlite.zst -o ~/pathfinder/data/sepolia-testnet.sqlite
 
       - name: Attempt to run Pathfinder
-        run: RUST_LOG=info PATHFINDER_ETHEREUM_API_URL="" ~/pathfinder/target/release/pathfinder --data-directory ~/pathfinder/data --http-rpc 0.0.0.0:9545 --storage.state-tries archive
+        run: RUST_LOG=info PATHFINDER_ETHEREUM_API_URL="${{ vars.PATHFINDER_ETHEREUM_API_URL }}" ~/pathfinder/target/release/pathfinder --data-directory ~/pathfinder/data --http-rpc 0.0.0.0:9545 --storage.state-tries archive &
