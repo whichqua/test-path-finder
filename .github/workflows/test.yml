@@ -78,6 +78,7 @@ jobs:
         run: |
           cd snos
           source venv/bin/activate
+          pip3 install cairo-lang==0.13.1
           bash scripts/setup-tests.sh
 
       - name: Run cargo command
