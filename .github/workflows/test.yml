@@ -34,6 +34,12 @@ jobs:
           curl -L https://pub-1fac64c3c0334cda85b45bcc02635c32.r2.dev/sepolia-testnet_0.13.0_74494_archive.sqlite.zst -o sepolia-testnet.sqlite.zst
           zstd -d sepolia-testnet.sqlite.zst -o $HOME/pathfinder-data/testnet-sepolia.sqlite
 
+      - name: Cache Db
+        uses: actions/cache@v3
+        with:
+            path: |
+             $HOME/pathfinder-data/testnet-sepolia.sqlite
+
       - name: Pull Pathfinder Docker image
         run: |
           docker pull odesenfans/pathfinder:latest
@@ -57,6 +63,7 @@ jobs:
             sleep 5
           done
           echo "Pathfinder is up!"
+          docker logs pathfinder
 
       - name: Install Rust
         run: |
@@ -86,4 +93,4 @@ jobs:
         run: |
           docker logs pathfinder
           cd snos/crates/bin/prove_block
-          cargo run -p prove_block -- --block-number 117 --rpc-provider http://127.0.0.1:9545
+          cargo run -p prove_block -- --block-number 76793 --rpc-provider http://127.0.0.1:9545
