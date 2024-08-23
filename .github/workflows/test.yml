@@ -32,7 +32,7 @@ jobs:
         run: |
           mkdir -p $HOME/pathfinder-data
           curl -L https://pub-1fac64c3c0334cda85b45bcc02635c32.r2.dev/sepolia-testnet_0.13.0_74494_pruned.sqlite.zst -o sepolia-testnet.sqlite.zst
-          zstd -d sepolia-testnet.sqlite.zst -o $HOME/pathfinder-data/sepolia-testnet.sqlite
+          zstd -d sepolia-testnet.sqlite.zst -o $HOME/pathfinder-data/testnet-sepolia.sqlite
 
       - name: Pull Pathfinder Docker image
         run: |
