@@ -31,7 +31,7 @@ jobs:
       - name: Download and extract database file
         run: |
           mkdir -p $HOME/pathfinder-data
-          curl -L https://pub-1fac64c3c0334cda85b45bcc02635c32.r2.dev/sepolia-testnet_0.13.0_74494_pruned.sqlite.zst -o sepolia-testnet.sqlite.zst
+          curl -L https://pub-1fac64c3c0334cda85b45bcc02635c32.r2.dev/sepolia-testnet_0.13.0_74494_archive.sqlite.zst -o sepolia-testnet.sqlite.zst
           zstd -d sepolia-testnet.sqlite.zst -o $HOME/pathfinder-data/testnet-sepolia.sqlite
 
       - name: Pull Pathfinder Docker image
@@ -53,6 +53,7 @@ jobs:
         run: |
           until curl -s http://127.0.0.1:9545; do
             echo "Waiting for Pathfinder to start..."
+            docker logs pathfinder
             sleep 5
           done
           echo "Pathfinder is up!"
