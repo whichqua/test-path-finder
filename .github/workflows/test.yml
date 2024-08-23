@@ -93,4 +93,4 @@ jobs:
         run: |
           docker logs pathfinder
           cd snos/crates/bin/prove_block
-          cargo run -p prove_block -- --block-number 76793 --rpc-provider http://127.0.0.1:9545
+          cargo run -p prove_block -- --block-number 38117 --rpc-provider http://127.0.0.1:9545
