@@ -28,18 +28,18 @@ jobs:
           sudo unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
           rm -f $PROTOC_ZIP
 
-      - name: Cache Db
-        id: cache-db
-        uses: actions/cache@v3
-        with:
-          path: |
-            $HOME/pathfinder-data/testnet-sepolia.sqlite
+      # - name: Cache Db
+      #   id: cache-db
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: |
+      #       $HOME/pathfinder-data/testnet-sepolia.sqlite
 
       - name: Download and extract database file
         if: ${{ steps.cache-db.outputs.cache-hit != 'true' }}
         run: |
           mkdir -p $HOME/pathfinder-data
-          curl -L https://pub-1fac64c3c0334cda85b45bcc02635c32.r2.dev/sepolia-testnet_0.13.0_74494_archive.sqlite.zst -o sepolia-testnet.sqlite.zst
+          curl -L ${{ secrets.PATHFINDER_ARCHIVE_URL }} -o sepolia-testnet.sqlite.zst
           zstd -d sepolia-testnet.sqlite.zst -o $HOME/pathfinder-data/testnet-sepolia.sqlite
 
       - name: Pull Pathfinder Docker image
@@ -53,19 +53,27 @@ jobs:
             -p 127.0.0.1:9545:9545 \
             --user "$(id -u):$(id -g)" \
             -e RUST_LOG=info \
-            -e PATHFINDER_ETHEREUM_API_URL=${{ secrets.PATHFINDER_ETHEREUM_API_URL }} \
+            -e PATHFINDER_SYNC_ENABLED=false \
             -v $HOME/pathfinder-data:/usr/share/pathfinder/data \
             odesenfans/pathfinder:latest \
             --storage.state-tries=archive
       - name: Wait for Pathfinder to be ready
         run: |
+          start_time=$(date +%s)
+          timeout=10
           until curl -s http://127.0.0.1:9545; do
+            current_time=$(date +%s)
+            elapsed_time=$((current_time - start_time))
+            if [ $elapsed_time -ge $timeout ]; then
+              echo "Pathfinder failed to start within $timeout seconds."
+              docker logs pathfinder
+              exit 1
+            fi
             echo "Waiting for Pathfinder to start..."
-            docker logs pathfinder
-            sleep 5
+            sleep 1
           done
-          echo "Pathfinder is up!"
           docker logs pathfinder
+          echo "Pathfinder is up!"
 
       - name: Install Rust
         run: |
