@@ -28,19 +28,21 @@ jobs:
           sudo unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
           rm -f $PROTOC_ZIP
 
-      # - name: Cache Db
-      #   id: cache-db
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: |
-      #       $HOME/pathfinder-data/testnet-sepolia.sqlite
+      - name: Cache Db
+        id: cache-db
+        uses: actions/cache@v3
+        with:
+          path: |
+            sepolia-testnet.sqlite.zst
 
       - name: Download and extract database file
         if: ${{ steps.cache-db.outputs.cache-hit != 'true' }}
         run: |
           mkdir -p $HOME/pathfinder-data
           curl -L ${{ secrets.PATHFINDER_ARCHIVE_URL }} -o sepolia-testnet.sqlite.zst
-          zstd -d sepolia-testnet.sqlite.zst -o $HOME/pathfinder-data/testnet-sepolia.sqlite
+
+      - name: Extract
+        run: zstd -T0 -d sepolia-testnet.sqlite.zst -o $HOME/pathfinder-data/testnet-sepolia.sqlite
 
       - name: Pull Pathfinder Docker image
         run: |
